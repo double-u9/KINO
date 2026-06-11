@@ -1,0 +1,255 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ──────────────────────────────────────────────
+// AUTH & IDENTITY
+// ──────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  username      String   @unique
+  passwordHash  String
+  emailVerified Boolean  @default(false)
+  verifyToken   String?
+  resetToken    String?
+  resetTokenExp DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  profile          Profile?
+  settings         UserSettings?
+  privacy          PrivacySettings?
+  sessions         Session[]
+  media            MediaItem[]
+  watchHistory     WatchHistory[]
+  favorites        Favorite[]
+  sentRequests     FriendRequest[]  @relation("Sender")
+  receivedRequests FriendRequest[]  @relation("Receiver")
+  friendshipsA     Friendship[]     @relation("FriendA")
+  friendshipsB     Friendship[]     @relation("FriendB")
+  blocksGiven      Block[]          @relation("Blocker")
+  blocksReceived   Block[]          @relation("Blocked")
+  notifications    Notification[]
+  activities       ActivityFeed[]
+  sentMessages     ChatMessage[]    @relation("MessageSender")
+  receivedMessages ChatMessage[]    @relation("MessageReceiver")
+
+  @@index([email])
+  @@index([username])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String   @unique
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([refreshToken])
+}
+
+// ──────────────────────────────────────────────
+// PROFILE & SETTINGS
+// ──────────────────────────────────────────────
+
+model Profile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName     String?
+  avatarUrl       String?
+  bannerUrl       String?
+  bannerType      String   @default("static") // static | gif | video
+  bio             String?
+  favoriteGenres  String   @default("[]") // JSON array stored as string for SQLite
+  themeColor      String   @default("#F5C518")
+  layoutPreset    String   @default("default")
+  animatedAccents Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model UserSettings {
+  id       String  @id @default(cuid())
+  userId   String  @unique
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  darkMode Boolean @default(true)
+  language String  @default("en")
+  timezone String  @default("UTC")
+}
+
+model PrivacySettings {
+  id                  String  @id @default(cuid())
+  userId              String  @unique
+  user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profileVisibility   String  @default("public") // public | friends | private
+  showWatchHistory    Boolean @default(true)
+  showFavorites       Boolean @default(true)
+  showActivity        Boolean @default(true)
+  allowFriendRequests Boolean @default(true)
+}
+
+// ──────────────────────────────────────────────
+// MEDIA COLLECTION
+// ──────────────────────────────────────────────
+
+model MediaItem {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title             String
+  type              String   // movie | series | anime
+  coverImageUrl     String?
+  rating            Float?
+  imdbId            String?
+  notes             String?
+  isFavorite        Boolean  @default(false)
+  totalSeasonsKnown Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  seasons Season[]
+
+  @@index([userId])
+  @@index([userId, type])
+  @@index([imdbId])
+}
+
+model Season {
+  id             String    @id @default(cuid())
+  mediaItemId    String
+  mediaItem      MediaItem @relation(fields: [mediaItemId], references: [id], onDelete: Cascade)
+  seasonNumber   Int
+  completed      Boolean   @default(false)
+  rating         Float?
+  notes          String?
+  completionDate DateTime?
+
+  @@index([mediaItemId])
+}
+
+// ──────────────────────────────────────────────
+// SOCIAL — FRIENDSHIPS
+// ──────────────────────────────────────────────
+
+model FriendRequest {
+  id         String   @id @default(cuid())
+  senderId   String
+  sender     User     @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  status     String   @default("pending") // pending | accepted | declined
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([senderId, receiverId])
+  @@index([receiverId, status])
+}
+
+model Friendship {
+  id        String   @id @default(cuid())
+  userAId   String
+  userA     User     @relation("FriendA", fields: [userAId], references: [id], onDelete: Cascade)
+  userBId   String
+  userB     User     @relation("FriendB", fields: [userBId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userAId, userBId])
+  @@index([userAId])
+  @@index([userBId])
+}
+
+model Block {
+  id        String   @id @default(cuid())
+  blockerId String
+  blocker   User     @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId String
+  blocked   User     @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+}
+
+model ChatMessage {
+  id         String   @id @default(cuid())
+  senderId   String
+  sender     User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  content    String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([senderId, receiverId])
+  @@index([receiverId, senderId])
+}
+
+// ──────────────────────────────────────────────
+// ACTIVITY & DISCOVERY
+// ──────────────────────────────────────────────
+
+model WatchHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaTitle  String
+  mediaType   String
+  mediaImdbId String?
+  mediaCover  String?
+  watchedAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Favorite {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaTitle  String
+  mediaType   String
+  mediaImdbId String?
+  mediaCover  String?
+  rank        Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, mediaTitle])
+  @@index([userId])
+}
+
+model ActivityFeed {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // added_media | rated | favorited | completed_season | joined | friended
+  payload   String   @default("{}") // JSON stored as string for SQLite
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // friend_request | friend_accepted | activity | system
+  title     String
+  body      String?
+  payload   String?  // JSON stored as string for SQLite
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+}
