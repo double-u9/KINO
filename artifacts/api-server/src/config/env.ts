@@ -12,7 +12,7 @@ const envSchema = z.object({
 
   BCRYPT_ROUNDS: z.coerce.number().default(12),
 
-  CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  CORS_ORIGIN: z.string().default('*'),
 });
 
 export const env = envSchema.parse(process.env);

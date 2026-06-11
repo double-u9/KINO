@@ -17,7 +17,7 @@ const app = express();
 
 // ── Global Middleware ──
 app.use(cors({
-  origin: env.CORS_ORIGIN,
+  origin: env.CORS_ORIGIN === '*' ? true : env.CORS_ORIGIN,
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
