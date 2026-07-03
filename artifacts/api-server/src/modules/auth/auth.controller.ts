@@ -10,6 +10,17 @@ const COOKIE_OPTIONS = {
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
+function getRefreshToken(req: Request): string | undefined {
+  const bodyToken = typeof req.body?.refreshToken === 'string'
+    ? req.body.refreshToken
+    : undefined;
+  const headerToken = typeof req.headers['x-refresh-token'] === 'string'
+    ? req.headers['x-refresh-token']
+    : undefined;
+
+  return req.cookies?.refreshToken || bodyToken || headerToken;
+}
+
 export class AuthController {
   async register(req: Request, res: Response): Promise<void> {
     const result = await authService.register(req.body, {
@@ -22,6 +33,7 @@ export class AuthController {
     res.status(201).json({
       user: result.user,
       accessToken: result.tokens.accessToken,
+      refreshToken: result.tokens.refreshToken,
     });
   }
 
@@ -36,6 +48,7 @@ export class AuthController {
     res.json({
       user: result.user,
       accessToken: result.tokens.accessToken,
+      refreshToken: result.tokens.refreshToken,
     });
   }
 
@@ -45,7 +58,7 @@ export class AuthController {
   }
 
   async refresh(req: Request, res: Response): Promise<void> {
-    const token = req.cookies?.refreshToken;
+    const token = getRefreshToken(req);
 
     if (!token) {
       res.status(401).json({
@@ -54,15 +67,21 @@ export class AuthController {
       return;
     }
 
-    const tokens = await authService.refresh(token);
+    const tokens = await authService.refresh(token, {
+      userAgent: req.headers['user-agent'],
+      ip: req.ip,
+    });
 
     res.cookie('refreshToken', tokens.refreshToken, COOKIE_OPTIONS);
 
-    res.json({ accessToken: tokens.accessToken });
+    res.json({
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    });
   }
 
   async logout(req: Request, res: Response): Promise<void> {
-    const token = req.cookies?.refreshToken;
+    const token = getRefreshToken(req);
 
     if (token) {
       await authService.logout(token);

@@ -9,7 +9,7 @@ export class ProfileController {
 
   async getPublicProfile(req: Request, res: Response): Promise<void> {
     const profile = await profileService.getPublicProfile(
-      req.params.username,
+      (req.params as any).username,
       req.user?.userId,
     );
     res.json({ profile });
@@ -27,7 +27,7 @@ export class ProfileController {
 
   async getUserMedia(req: Request, res: Response): Promise<void> {
     const media = await profileService.getUserMedia(
-      req.params.username,
+      (req.params as any).username,
       req.user?.userId,
     );
     res.json({ media });

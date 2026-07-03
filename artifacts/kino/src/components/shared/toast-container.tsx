@@ -1,5 +1,5 @@
 import React from 'react';
-import { useToastStore } from '../store/useToastStore';
+import { useToastStore } from '../../store/useToastStore';
 import { CheckCircle2, Info, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

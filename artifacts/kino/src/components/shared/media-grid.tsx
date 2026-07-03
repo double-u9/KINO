@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { useAppStore } from '../store/useAppStore';
+import { useAppStore } from '../../store/useAppStore';
 import { Plus, Check, Search, Film, Clapperboard, Star, Loader2, Share2, Users } from 'lucide-react';
-import { MediaDetailModal } from './MediaDetailModal';
-import { Dropdown } from './Dropdown';
-import * as friendsApi from '../api/friends';
-import * as chatApi from '../api/chat';
-import { useToastStore } from '../store/useToastStore';
-import type { MediaItem, MediaType } from '../types';
+import { MediaDetailModal } from './media-detail-modal';
+import { Dropdown } from './dropdown';
+import * as friendsApi from '../../api/friends';
+import * as chatApi from '../../api/chat';
+import { useToastStore } from '../../store/useToastStore';
+import type { MediaItem, MediaType } from '../../types';
 import {
   motion,
   AnimatePresence,
@@ -35,7 +35,7 @@ export function MediaGrid() {
     if (search) result = result.filter((m) => m.title.toLowerCase().includes(search.toLowerCase()));
     if (sort === 'rating') result.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
     else if (sort === 'alpha') result.sort((a, b) => a.title.localeCompare(b.title));
-    else result.sort((a, b) => b.createdAt - a.createdAt);
+    else result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return result;
   }, [media, search, filter, sort]);
 

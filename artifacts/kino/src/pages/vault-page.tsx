@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
-import { MediaGrid } from '../components/MediaGrid';
-import { ToastContainer } from '../components/ToastContainer';
+import { MediaGrid } from '../components/shared/media-grid';
+import { ToastContainer } from '../components/shared/toast-container';
 import { Plus, Loader2, X, Film, ChevronDown } from 'lucide-react';
 import type { MediaType } from '../types';
 import {

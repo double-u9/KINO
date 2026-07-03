@@ -4,7 +4,7 @@ import { chatService } from './chat.service.js';
 export class ChatController {
   async getChatHistory(req: Request, res: Response) {
     const userId = req.user!.userId;
-    const { friendId } = req.params;
+    const { friendId } = (req.params as any) as any;
 
     const messages = await chatService.getChatHistory(userId, friendId);
     res.json(messages);
@@ -12,7 +12,7 @@ export class ChatController {
 
   async sendMessage(req: Request, res: Response) {
     const userId = req.user!.userId;
-    const { friendId } = req.params;
+    const { friendId } = (req.params as any) as any;
     const { content } = req.body;
 
     if (!content || typeof content !== 'string') {

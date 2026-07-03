@@ -9,7 +9,7 @@ import {
   updateSeasonSchema,
 } from './media.schema.js';
 
-const router = Router();
+const router: import('express').Router = Router();
 
 // All media routes require auth
 router.use(requireAuth);

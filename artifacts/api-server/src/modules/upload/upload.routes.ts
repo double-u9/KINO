@@ -8,7 +8,7 @@ const upload = multer({
   limits: { fileSize: 20 * 1024 * 1024 }, // 20MB max (banner), service enforces per-type
 });
 
-const router = Router();
+const router: import('express').Router = Router();
 router.use(requireAuth);
 
 // ── Avatar ──

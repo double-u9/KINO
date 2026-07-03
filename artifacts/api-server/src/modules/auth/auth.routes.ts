@@ -2,10 +2,10 @@ import { Router } from 'express';
 import { authController } from './auth.controller.js';
 import { validate } from '../../middleware/validate.js';
 import { requireAuth } from '../../middleware/auth.js';
-import { rateLimiter } from '../../middleware/rateLimiter.js';
+import { rateLimiter } from '../../middleware/rate-limiter.js';
 import { registerSchema, loginSchema, resetLocalSchema } from './auth.schema.js';
 
-const router = Router();
+const router: import('express').Router = Router();
 
 // Rate limit auth endpoints: 10 attempts per 15 minutes
 const authLimiter = rateLimiter({

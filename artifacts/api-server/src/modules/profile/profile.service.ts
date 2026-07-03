@@ -1,5 +1,5 @@
 import { prisma } from '../../config/database.js';
-import { AppError } from '../../middleware/errorHandler.js';
+import { AppError } from '../../middleware/error-handler.js';
 
 export class ProfileService {
   async getOwnProfile(userId: string) {

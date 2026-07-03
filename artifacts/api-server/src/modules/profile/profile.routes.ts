@@ -3,7 +3,7 @@ import { profileController } from './profile.controller.js';
 import { requireAuth } from '../../middleware/auth.js';
 import { optionalAuth } from '../../middleware/auth.js';
 
-const router = Router();
+const router: import('express').Router = Router();
 
 // Own profile (requires auth)
 router.get('/', requireAuth, (req, res, next) => { profileController.getOwnProfile(req, res).catch(next); });

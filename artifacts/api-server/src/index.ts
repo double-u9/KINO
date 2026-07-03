@@ -3,7 +3,7 @@ import path from 'path';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { env } from './config/env.js';
-import { errorHandler } from './middleware/errorHandler.js';
+import { errorHandler } from './middleware/error-handler.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { mediaRoutes } from './modules/media/media.routes.js';
 import { friendsRoutes } from './modules/friends/friends.routes.js';
@@ -13,7 +13,7 @@ import { feedRoutes } from './modules/feed/feed.routes.js';
 import { uploadRoutes } from './modules/upload/upload.routes.js';
 import { chatRoutes } from './modules/chat/chat.routes.js';
 
-const app = express();
+const app: import('express').Application = express();
 
 // ── Global Middleware ──
 app.use(cors({

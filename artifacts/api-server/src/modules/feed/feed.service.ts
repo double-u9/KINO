@@ -11,7 +11,7 @@ export class FeedService {
       select: { userAId: true, userBId: true },
     });
 
-    const friendIds = friendships.map(f =>
+    const friendIds = friendships.map((f: any) =>
       f.userAId === userId ? f.userBId : f.userAId,
     );
 
@@ -42,7 +42,7 @@ export class FeedService {
     const nextCursor = hasMore ? items[items.length - 1].createdAt.toISOString() : null;
 
     // Parse JSON payloads
-    const parsed = items.map(a => ({
+    const parsed = items.map((a: any) => ({
       ...a,
       payload: typeof a.payload === 'string' ? JSON.parse(a.payload) : a.payload,
     }));
@@ -75,7 +75,7 @@ export class FeedService {
     const items = hasMore ? activities.slice(0, limit) : activities;
     const nextCursor = hasMore ? items[items.length - 1].createdAt.toISOString() : null;
 
-    const parsed = items.map(a => ({
+    const parsed = items.map((a: any) => ({
       ...a,
       payload: typeof a.payload === 'string' ? JSON.parse(a.payload) : a.payload,
     }));

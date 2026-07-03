@@ -82,6 +82,7 @@ export function FriendsPage() {
       return () => clearTimeout(t);
     } else {
       setSearchResults([]);
+      return undefined;
     }
   }, [searchQuery, tab]);
 

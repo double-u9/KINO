@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useAppStore } from '../store/useAppStore';
-import type { MediaItem, MediaType } from '../types';
+import { useAppStore } from '../../store/useAppStore';
+import type { MediaItem, MediaType } from '../../types';
 import { X, ImagePlus, Trash2, ExternalLink, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Dropdown } from './Dropdown';
+import { Dropdown } from './dropdown';
 
 export function MediaDetailModal({
   item,

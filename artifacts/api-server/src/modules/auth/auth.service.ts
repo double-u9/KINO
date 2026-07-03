@@ -8,7 +8,7 @@ import {
   type TokenPayload,
 } from '../../lib/jwt.js';
 import { env } from '../../config/env.js';
-import { AppError } from '../../middleware/errorHandler.js';
+import { AppError } from '../../middleware/error-handler.js';
 import type { RegisterInput, LoginInput, ResetLocalInput } from './auth.schema.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -135,7 +135,10 @@ export class AuthService {
     });
   }
 
-  async refresh(refreshToken: string): Promise<AuthTokens> {
+  async refresh(
+    refreshToken: string,
+    meta?: { userAgent?: string; ip?: string },
+  ): Promise<AuthTokens> {
     let payload: TokenPayload;
     try {
       payload = verifyRefreshToken(refreshToken);
@@ -160,7 +163,10 @@ export class AuthService {
     await prisma.session.delete({ where: { id: session.id } });
 
     // Create new session with new refresh token (strip exp/iat from old token)
-    const newTokens = await this.createSession({ userId: payload.userId, username: payload.username });
+    const newTokens = await this.createSession(
+      { userId: payload.userId, username: payload.username },
+      meta,
+    );
     return newTokens;
   }
 

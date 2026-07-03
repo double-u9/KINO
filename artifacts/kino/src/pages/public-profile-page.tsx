@@ -5,7 +5,7 @@ import { Clapperboard, Star, Lock, Film, ArrowLeft, Loader2, Play, Search, Users
 import { fetchPublicProfile, fetchUserMedia, type PublicProfile } from '../api/profile';
 import type { MediaItem, MediaType } from '../types';
 import { getCoverImage } from '../types';
-import { Dropdown } from '../components/Dropdown';
+import { Dropdown } from '../components/shared/dropdown';
 import { BannerRenderer } from '../components/profile/BannerRenderer';
 
 const FILTER_LABELS: Record<'all' | MediaType | 'favorites', string> = {

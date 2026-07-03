@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../../middleware/auth.js';
 import { feedService } from './feed.service.js';
 
-const router = Router();
+const router: import('express').Router = Router();
 router.use(requireAuth);
 
 router.get('/', async (req, res, next) => {

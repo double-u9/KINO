@@ -1,20 +1,17 @@
-import pino from "pino";
+type LogMethod = (...args: unknown[]) => void;
 
-const isProduction = process.env.NODE_ENV === "production";
-
-export const logger = pino({
-  level: process.env.LOG_LEVEL ?? "info",
-  redact: [
-    "req.headers.authorization",
-    "req.headers.cookie",
-    "res.headers['set-cookie']",
-  ],
-  ...(isProduction
-    ? {}
-    : {
-        transport: {
-          target: "pino-pretty",
-          options: { colorize: true },
-        },
-      }),
-});
+export const logger: {
+  info: LogMethod;
+  warn: LogMethod;
+  error: LogMethod;
+  debug: LogMethod;
+} = {
+  info: (...args) => console.info(...args),
+  warn: (...args) => console.warn(...args),
+  error: (...args) => console.error(...args),
+  debug: (...args) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.debug(...args);
+    }
+  },
+};

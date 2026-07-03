@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import crypto from 'crypto';
 import sharp from 'sharp';
 import { prisma } from '../../config/database.js';
-import { AppError } from '../../middleware/errorHandler.js';
+import { AppError } from '../../middleware/error-handler.js';
 
 const UPLOADS_DIR = path.resolve(process.cwd(), 'uploads');
 const AVATARS_DIR = path.join(UPLOADS_DIR, 'avatars');

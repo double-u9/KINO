@@ -14,9 +14,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.kino.finder",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
-    "android": {},
+    "android": {
+      "package": "com.kino.finder"
+    },
     "web": {
       "favicon": "./assets/images/icon.png"
     },
@@ -28,10 +34,20 @@
         }
       ],
       "expo-font",
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow Kino to secure your login session."
+        }
+      ],
       "expo-web-browser"
     ],
+    "extra": {
+      "apiUrl": "$EXPO_PUBLIC_API_URL"
+    },
     "experiments": {
-      "typedRoutes": true,
+      "typedRoutes": false,
       "reactCompiler": true
     }
   }

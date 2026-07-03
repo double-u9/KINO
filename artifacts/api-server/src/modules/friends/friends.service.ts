@@ -1,5 +1,5 @@
 import { prisma } from '../../config/database.js';
-import { AppError } from '../../middleware/errorHandler.js';
+import { AppError } from '../../middleware/error-handler.js';
 
 export class FriendsService {
   // ── Send Friend Request ──
@@ -252,7 +252,7 @@ export class FriendsService {
       }
     });
 
-    return friendships.map(f => {
+    return friendships.map((f: any) => {
       const friend = f.userAId === userId ? f.userB : f.userA;
       
       const sent = friend.sentMessages[0];
@@ -279,7 +279,7 @@ export class FriendsService {
         unreadCount: friend._count.sentMessages,
         latestMessage,
       };
-    }).sort((a, b) => {
+    }).sort((a: any, b: any) => {
       const aTime = a.latestMessage?.createdAt ? new Date(a.latestMessage.createdAt).getTime() : new Date(a.friendSince).getTime();
       const bTime = b.latestMessage?.createdAt ? new Date(b.latestMessage.createdAt).getTime() : new Date(b.friendSince).getTime();
       return bTime - aTime;
@@ -352,7 +352,7 @@ export class FriendsService {
 
     // Check friendship status for each
     const results = await Promise.all(
-      users.map(async (user) => {
+      users.map(async (user: any) => {
         const [userAId, userBId] = [currentUserId, user.id].sort();
         const friendship = await prisma.friendship.findUnique({
           where: { userAId_userBId: { userAId, userBId } },
@@ -390,7 +390,7 @@ export class FriendsService {
       }),
     );
 
-    return results.filter(u => u.relationshipStatus !== 'blocked');
+    return results.filter((u: any) => u.relationshipStatus !== 'blocked');
   }
 
   // ── Helpers ──

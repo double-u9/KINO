@@ -1,86 +1,81 @@
-import { BlurView } from "expo-blur";
-import { isLiquidGlassAvailable } from "expo-glass-effect";
-import { Tabs } from "expo-router";
-import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
-import { SymbolView } from "expo-symbols";
-import { Feather } from "@expo/vector-icons";
-import React from "react";
-import { Platform, StyleSheet, View, useColorScheme } from "react-native";
+import { Feather } from '@expo/vector-icons';
+import { Redirect, Tabs } from 'expo-router';
+import React from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { useColors } from "@/hooks/useColors";
+import { palette } from '@/components/ui';
+import { useAuth } from '@/lib/auth';
 
-// IMPORTANT: iOS 26 uses NativeTabs for native tabs with liquid glass support.
-// NativeTabs intentionally does NOT use custom design tokens — liquid glass
-// is a system-level appearance provided by iOS and cannot be overridden.
-// Custom brand colors are applied only on the ClassicTabLayout path (older iOS / Android / web).
-function NativeTabLayout() {
-  return (
-    <NativeTabs>
-      <NativeTabs.Trigger name="index">
-        <Icon sf={{ default: "house", selected: "house.fill" }} />
-        <Label>Home</Label>
-      </NativeTabs.Trigger>
-    </NativeTabs>
-  );
-}
+const TAB_ICON: Record<string, React.ComponentProps<typeof Feather>['name']> = {
+  index: 'grid',
+  feed: 'rss',
+  friends: 'users',
+  notifications: 'bell',
+  profile: 'user',
+  settings: 'settings',
+};
 
-function ClassicTabLayout() {
-  const colors = useColors();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-  const isIOS = Platform.OS === "ios";
-  const isWeb = Platform.OS === "web";
+export default function TabLayout() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator color={palette.primary} />
+      </View>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Redirect href="/(auth)/login" />;
+  }
 
   return (
     <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.mutedForeground,
-        headerShown: true,
-        tabBarStyle: {
-          position: "absolute",
-          backgroundColor: isIOS ? "transparent" : colors.background,
-          borderTopWidth: isWeb ? 1 : 0,
-          borderTopColor: colors.border,
-          elevation: 0,
-          ...(isWeb ? { height: 84 } : {}),
-        },
-        tabBarBackground: () =>
-          isIOS ? (
-            <BlurView
-              intensity={100}
-              tint={isDark ? "dark" : "light"}
-              style={StyleSheet.absoluteFill}
-            />
-          ) : isWeb ? (
-            <View
-              style={[
-                StyleSheet.absoluteFill,
-                { backgroundColor: colors.background },
-              ]}
-            />
-          ) : null,
-      }}
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: palette.primary,
+        tabBarInactiveTintColor: palette.mutedForeground,
+        tabBarShowLabel: true,
+        tabBarLabelStyle: styles.label,
+        tabBarStyle: styles.tabBar,
+        tabBarItemStyle: styles.tabItem,
+        sceneStyle: { backgroundColor: palette.background },
+        tabBarIcon: ({ color, size }) => (
+          <Feather name={TAB_ICON[route.name] || 'circle'} size={size - 2} color={color} />
+        ),
+      })}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="house" tintColor={color} size={24} />
-            ) : (
-              <Feather name="home" size={22} color={color} />
-            ),
-        }}
-      />
+      <Tabs.Screen name="index" options={{ title: 'Vault' }} />
+      <Tabs.Screen name="feed" options={{ title: 'Feed' }} />
+      <Tabs.Screen name="friends" options={{ title: 'Friends' }} />
+      <Tabs.Screen name="notifications" options={{ title: 'Alerts' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+      <Tabs.Screen name="settings" options={{ title: 'Settings' }} />
     </Tabs>
   );
 }
 
-export default function TabLayout() {
-  if (isLiquidGlassAvailable()) {
-    return <NativeTabLayout />;
-  }
-  return <ClassicTabLayout />;
-}
+const styles = StyleSheet.create({
+  loader: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: palette.background,
+  },
+  tabBar: {
+    position: 'absolute',
+    minHeight: 74,
+    paddingTop: 8,
+    paddingBottom: 12,
+    borderTopColor: palette.border,
+    backgroundColor: '#0d0d10',
+  },
+  tabItem: {
+    paddingVertical: 2,
+  },
+  label: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 10,
+  },
+});

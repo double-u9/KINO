@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { friendsController } from './friends.controller.js';
 import { requireAuth } from '../../middleware/auth.js';
 
-const router = Router();
+const router: import('express').Router = Router();
 router.use(requireAuth);
 
 router.get('/', (req, res, next) => { friendsController.listFriends(req, res).catch(next); });
